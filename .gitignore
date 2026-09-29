@@ -1,0 +1,7 @@
+# credentials and local state - never commit
+ilo_thermal.conf
+*.db
+*.log
+.lock
+report/
+__pycache__/

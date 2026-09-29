@@ -1,0 +1,39 @@
+# ilo_thermal.conf - copy to ilo_thermal.conf and chmod 600 (the script refuses a looser mode).
+# Never commit the real file: it holds the iLO and SMTP credentials.
+
+[general]
+lang = en                # en | de (alert texts and report)
+keep_days = 400          # delete readings older than this
+remind_hours = 12        # repeat an active alert by mail after this many hours
+# IML classes that never trigger a mail (network link up/down happens at every reboot)
+iml_ignore_classes = Network
+
+[ilo]
+user = monitor           # an iLO account with the "Login" privilege is enough (read-only)
+password = CHANGE-ME
+ca_file = ~/homelab-root-ca.crt   # CA that signed the iLO certificates
+
+[hosts]
+# name = IP, DNS name on the iLO certificate (connects by IP, verifies against the name)
+HP1 = 192.0.2.29, hp1-ilo.example.home.arpa
+HP2 = 192.0.2.39, hp2-ilo.example.home.arpa
+HP3 = 192.0.2.49, hp3-ilo.example.home.arpa
+
+[thresholds]
+inlet_warn = 30          # °C intake air: warning
+inlet_crit = 35          # °C intake air: critical (HPE rates these servers for 35 °C ambient)
+spike_degrees = 4        # intake rise within one hour
+baseline_days = 7        # "normal" = median of the last N days
+rear_delta_rise = 5      # rear-minus-front gap above its normal by this much ...
+rear_delta_min = 8       # ... and at least this large -> heat build-up at the rear
+fan_rise = 20            # fan % above normal while the intake is not warmer
+unreachable_after = 3    # consecutive failed polls before an alert
+
+[smtp]
+# leave host empty to disable mail (alerts then only go to the log and the report)
+host =
+port = 465               # 465 = implicit TLS, 587 = STARTTLS
+user =
+password =
+from =
+to =
