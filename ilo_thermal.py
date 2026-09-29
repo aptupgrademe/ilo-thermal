@@ -400,6 +400,18 @@ def report(conf):
     with open(REPORT + ".tmp", "w") as f:
         f.write(page)
     os.replace(REPORT + ".tmp", REPORT)
+    # optional second copy, e.g. into a Samba/NFS share you can open from your desktop
+    dest = conf["general"].get("report_copy_to", "").strip()
+    if dest:
+        dest = os.path.expanduser(dest)
+        target = os.path.join(dest, "index.html") if os.path.isdir(dest) or dest.endswith("/") else dest
+        try:
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target + ".tmp", "w") as f:
+                f.write(page)
+            os.replace(target + ".tmp", target)
+        except OSError as e:
+            log(f"report copy to {target} failed: {e}")
 
 
 TEMPLATE = r"""<!doctype html>

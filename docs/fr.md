@@ -188,6 +188,7 @@ crontab -e
 | `keep_days` | `400` | Les mesures plus anciennes sont supprimées. 400 jours = une année complète pour comparer. |
 | `remind_hours` | `12` | Une alerte toujours active est renvoyée par mail après ce nombre d'heures. |
 | `iml_ignore_classes` | `Network` | Classes IML (séparées par des virgules) qui ne déclenchent jamais de mail. Les changements d'état de lien sont journalisés comme « Critical » à chaque redémarrage et ne seraient que du bruit. |
+| `report_copy_to` | – | Optionnel. Écrit aussi le rapport dans ce répertoire ou ce fichier, par ex. sur un partage Samba/NFS accessible depuis votre poste. |
 
 ### `[ilo]`
 

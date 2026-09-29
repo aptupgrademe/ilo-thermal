@@ -178,6 +178,7 @@ crontab -e
 | `keep_days` | `400` | Readings older than this are deleted. 400 days = a full year for comparison. |
 | `remind_hours` | `12` | An alert that is still active is mailed again after this many hours. |
 | `iml_ignore_classes` | `Network` | Comma-separated IML classes that never trigger a mail. Link up/down is logged as "Critical" at every reboot and would otherwise be noise. |
+| `report_copy_to` | – | Optional. Also write the report to this directory or file, e.g. into a Samba/NFS share you can open from your desktop. |
 
 ### `[ilo]`
 

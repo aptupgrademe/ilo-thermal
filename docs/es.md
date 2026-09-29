@@ -185,6 +185,7 @@ crontab -e
 | `keep_days` | `400` | Las lecturas más antiguas se eliminan. 400 días = un año completo para comparar. |
 | `remind_hours` | `12` | Una alerta que sigue activa se vuelve a enviar tras estas horas. |
 | `iml_ignore_classes` | `Network` | Clases IML (separadas por comas) que nunca generan correo. Los cambios de enlace se registran como «Critical» en cada reinicio y solo serían ruido. |
+| `report_copy_to` | – | Opcional. Escribe también el informe en este directorio o archivo, p. ej. en una carpeta compartida Samba/NFS accesible desde su equipo. |
 
 ### `[ilo]`
 

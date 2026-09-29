@@ -7,6 +7,8 @@ keep_days = 400          # delete readings older than this
 remind_hours = 12        # repeat an active alert by mail after this many hours
 # IML classes that never trigger a mail (network link up/down happens at every reboot)
 iml_ignore_classes = Network
+# optional: also write the report here (a directory or a file name), e.g. into a share
+# report_copy_to = /srv/share/rack-temperatures.html
 
 [ilo]
 user = monitor           # an iLO account with the "Login" privilege is enough (read-only)
