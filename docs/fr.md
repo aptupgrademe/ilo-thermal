@@ -78,14 +78,18 @@ et MicroServer Gen10 Plus v2) et un « jump host » Linux qui ne tourne **pas** 
 ## 4. Capteurs utilisés, et pourquoi
 
 Redfish renvoie chaque capteur avec sa position dans le châssis. Chez HPE, `Oem.Hpe.LocationXmm`
-/ `LocationYmm` donnent une position sur une grille : **y = 1 est l'avant (aspiration), y = 13–14
-l'extrême arrière**. La même carte est visible dans l'interface web de l'iLO sous
+/ `LocationYmm` le placent sur une grille. Malgré leur nom, ce sont des **cases de grille, pas des
+millimètres** (valeurs d'environ 1 à 14). **y est la profondeur : y = 1 est l'avant (aspiration), la
+valeur la plus élevée l'extrême arrière** ; x est la position dans la largeur. La profondeur de la
+grille dépend du modèle : sur le DL20 Gen10 Plus, la dernière rangée est y = 13–14 (BMC Zone à
+y = 14) ; sur le MicroServer Gen10 Plus v2, plus compact, la grille s'arrête à y = 13 et la BMC Zone
+se trouve à y = 10. La même carte est visible dans l'interface web de l'iLO sous
 *Power & Thermal → Temperatures*.
 
 | Capteur | Position | Utilisé pour | Pourquoi |
 |---|---|---|---|
 | `01-Inlet Ambient` | avant, contexte *Intake* | air aspiré, sauts | L'air que le serveur aspire. Il reflète la pièce ou la baie, pas le serveur, et c'est à lui que se réfèrent la spécification HPE (35 °C ambiant pour ces modèles) et la recommandation ASHRAE (18–27 °C). |
-| `xx-BMC Zone` | arrière (y = 13–14) | air arrière, accumulation de chaleur | Un capteur de **zone d'air** à l'arrière, avec très peu d'échauffement propre. Le meilleur substitut à l'air extrait sur les modèles sans capteur d'échappement. |
+| `xx-BMC Zone` | arrière (DL20 : y = 14, MicroServer : y = 10) | air arrière, accumulation de chaleur | Un capteur de **zone d'air** à l'arrière, avec très peu d'échauffement propre. Le meilleur substitut à l'air extrait sur les modèles sans capteur d'échappement. |
 | `Fan n` | – | vitesse des ventilateurs (%) | Des ventilateurs qui accélèrent sans que l'air aspiré soit plus chaud sont l'indicateur précoce le plus sensible d'un problème de flux d'air. |
 
 Volontairement **non** utilisés :

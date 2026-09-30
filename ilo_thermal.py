@@ -24,7 +24,7 @@ REPORT = os.path.join(HERE, "report", "index.html")
 LOG = os.path.join(HERE, "ilo_thermal.log")
 
 INLET = re.compile(r"Inlet Ambient", re.I)    # "01-Inlet Ambient", location "Intake": the air sucked in at the front
-REAR_ZONE = re.compile(r"BMC Zone", re.I)     # air zone at the very back (y = 13-14), hardly any self-heating
+REAR_ZONE = re.compile(r"BMC Zone", re.I)     # air zone at the back (DL20: y = 14, MicroServer: y = 10), hardly any self-heating
 IML_SEVERITY = {"Critical": "CRIT", "Caution": "WARN", "Warning": "WARN"}
 
 # ---------------------------------------------------------------------------

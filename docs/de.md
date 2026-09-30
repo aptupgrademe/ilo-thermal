@@ -72,14 +72,18 @@ MicroServer Gen10 Plus v2) und einem Linux-„Jump-Host“, der **nicht** rund u
 
 ## 4. Welche Sensoren genutzt werden und warum
 
-Redfish liefert jeden Sensor mit seiner Position im Gehäuse. Bei HPE geben `Oem.Hpe.LocationXmm` /
-`LocationYmm` eine Rasterposition an: **y = 1 ist vorne (Ansaugung), y = 13–14 ganz hinten**. Dieselbe
+Redfish liefert jeden Sensor mit seiner Position im Gehäuse. Bei HPE legen `Oem.Hpe.LocationXmm` /
+`LocationYmm` ihn auf ein Raster. Trotz des Namens sind das **Rasterfelder, keine Millimeter** (die Werte
+reichen etwa von 1 bis 14). **y ist die Tiefe: y = 1 ist vorne (Ansaugung), der höchste Wert ganz
+hinten**; x ist die Position quer über die Breite. Wie tief das Raster reicht, hängt vom Modell ab: Beim
+DL20 Gen10 Plus ist die hinterste Reihe y = 13–14 (BMC Zone bei y = 14), beim kompakteren MicroServer
+Gen10 Plus v2 endet das Raster bei y = 13, und die BMC Zone liegt bei y = 10. Dieselbe
 Karte zeigt die iLO-Weboberfläche unter *Power & Thermal → Temperatures*.
 
 | Sensor | Position | Verwendet für | Warum |
 |---|---|---|---|
 | `01-Inlet Ambient` | vorne, Kontext *Intake* | Ansaugluft, Sprünge | Die Luft, die der Server ansaugt. Sie spiegelt Raum bzw. Rack wider, nicht den Server selbst, und auf sie beziehen sich HPEs Umgebungsgrenze (35 °C bei diesen Modellen) und die ASHRAE-Empfehlung (18–27 °C). |
-| `xx-BMC Zone` | hinten (y = 13–14) | Luft hinten, Hitzestau | Ein **Luftzonen**-Sensor auf der Rückseite mit sehr wenig Eigenerwärmung. Der beste Ersatz für die Abluft bei Modellen ohne Abluftsensor. |
+| `xx-BMC Zone` | hinten (DL20: y = 14, MicroServer: y = 10) | Luft hinten, Hitzestau | Ein **Luftzonen**-Sensor auf der Rückseite mit sehr wenig Eigenerwärmung. Der beste Ersatz für die Abluft bei Modellen ohne Abluftsensor. |
 | `Fan n` | – | Lüfterdrehzahl (%) | Lüfter, die hochdrehen, ohne dass die Ansaugluft wärmer wird, sind der empfindlichste Frühindikator für Luftstromprobleme. |
 
 Bewusst **nicht** verwendet:

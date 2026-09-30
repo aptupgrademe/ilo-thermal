@@ -75,14 +75,18 @@ MicroServer Gen10 Plus v2) y un «jump host» Linux que **no** funciona las 24 h
 ## 4. Qué sensores se usan y por qué
 
 Redfish devuelve cada sensor con su posición en el chasis. En HPE, `Oem.Hpe.LocationXmm` /
-`LocationYmm` dan una posición en una cuadrícula: **y = 1 es el frontal (entrada de aire),
-y = 13–14 la parte trasera**. El mismo mapa se ve en la interfaz web del iLO en
+`LocationYmm` lo sitúan en una cuadrícula. A pesar del nombre, son **celdas de la cuadrícula, no
+milímetros** (valores de 1 a 14 aproximadamente). **y es la profundidad: y = 1 es el frontal (entrada
+de aire), el valor más alto la parte trasera**; x es la posición a lo ancho. La profundidad de la
+cuadrícula depende del modelo: en el DL20 Gen10 Plus la última fila es y = 13–14 (BMC Zone en
+y = 14); en el MicroServer Gen10 Plus v2, más compacto, la cuadrícula termina en y = 13 y la BMC Zone
+está en y = 10. El mismo mapa se ve en la interfaz web del iLO en
 *Power & Thermal → Temperatures*.
 
 | Sensor | Posición | Se usa para | Por qué |
 |---|---|---|---|
 | `01-Inlet Ambient` | frontal, contexto *Intake* | aire de entrada, saltos | El aire que aspira el servidor. Refleja la sala o el rack, no el servidor, y es la referencia de la especificación de HPE (35 °C ambiente para estos modelos) y de la recomendación ASHRAE (18–27 °C). |
-| `xx-BMC Zone` | trasera (y = 13–14) | aire trasero, acumulación de calor | Un sensor de **zona de aire** en la parte trasera, con muy poco calor propio. El mejor sustituto del aire de salida en modelos sin sensor de escape. |
+| `xx-BMC Zone` | trasera (DL20: y = 14, MicroServer: y = 10) | aire trasero, acumulación de calor | Un sensor de **zona de aire** en la parte trasera, con muy poco calor propio. El mejor sustituto del aire de salida en modelos sin sensor de escape. |
 | `Fan n` | – | velocidad de ventiladores (%) | Que los ventiladores aceleren sin que el aire de entrada esté más caliente es el indicador temprano más sensible de un problema de flujo de aire. |
 
 Deliberadamente **no** se usan:

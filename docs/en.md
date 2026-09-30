@@ -73,13 +73,16 @@ MicroServer Gen10 Plus v2) and a Linux "jump host" that is **not** running 24/7.
 ## 4. Which sensors are used, and why
 
 Redfish returns every sensor with its position in the chassis. On HPE, `Oem.Hpe.LocationXmm` /
-`LocationYmm` give a grid position: **y = 1 is the front (intake), y = 13–14 the very back**. You
-can see the same map in the iLO web UI under *Power & Thermal → Temperatures*.
+`LocationYmm` place it on a grid. Despite the name these are **grid cells, not millimetres** (values
+run from about 1 to 14). **y is the depth: y = 1 is the front (intake), the highest value the very
+back**; x is the position across the width. How deep the grid goes depends on the model: on the
+DL20 Gen10 Plus the back row is y = 13–14 (BMC Zone at y = 14), on the more compact MicroServer
+Gen10 Plus v2 the grid ends at y = 13 and the BMC Zone sits at y = 10. You can see the same map in the iLO web UI under *Power & Thermal → Temperatures*.
 
 | Sensor | Position | Used for | Why |
 |---|---|---|---|
 | `01-Inlet Ambient` | front, context *Intake* | intake air, spikes | The air the server sucks in. It reflects the room/rack, not the server, and it is what HPE's ambient rating (35 °C for these models) and ASHRAE's recommendation (18–27 °C) refer to. |
-| `xx-BMC Zone` | rear (y = 13–14) | rear air, heat build-up | An **air zone** sensor at the back with very little self-heating. The best stand-in for exhaust air on models without an exhaust sensor. |
+| `xx-BMC Zone` | rear (DL20: y = 14, MicroServer: y = 10) | rear air, heat build-up | An **air zone** sensor at the back with very little self-heating. The best stand-in for exhaust air on models without an exhaust sensor. |
 | `Fan n` | – | fan speed (%) | Fans ramping up without warmer intake air is the most sensitive early indicator of airflow problems. |
 
 What is deliberately **not** used:
