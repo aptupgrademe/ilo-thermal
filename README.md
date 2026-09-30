@@ -2,7 +2,7 @@
 
 **Temperature history and heat build-up alerts for HPE iLO 5 servers** – because the iLO only shows live values.
 
-📖 Full documentation: **[English](docs/en.md)** · **[Français](docs/fr.md)** · **[Español](docs/es.md)**
+📖 Full documentation: **[English](docs/en.md)** · **[Deutsch](docs/de.md)** · **[Français](docs/fr.md)** · **[Español](docs/es.md)**
 
 ![Report with one week of demo data](docs/report-demo.png)
 *Report with one week of synthetic demo data (simulated heat build-up at HP2's rear).*

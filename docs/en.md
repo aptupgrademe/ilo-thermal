@@ -1,6 +1,6 @@
 # ilo-thermal – full documentation (English)
 
-[Français](fr.md) · [Español](es.md) · [README](../README.md)
+[Deutsch](de.md) · [Français](fr.md) · [Español](es.md) · [README](../README.md)
 
 ---
 
