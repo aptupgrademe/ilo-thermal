@@ -16,6 +16,8 @@
   - a suspected **heat build-up at the rear** (rear air zone pulling away from the intake),
   - **fans ramping up** although the intake is not warmer (blocked airflow, dust),
   - unhealthy sensors and unreachable iLOs.
+- **Knows when a server is off:** a switched-off server's iLO keeps reporting frozen values; those are
+  not stored – the report shows "switched off since …" instead.
 - **Catches up after downtime:** if the machine running it was off, it reads the iLO's event log (IML)
   on the next start and reports everything that happened meanwhile – with the original timestamps.
 - Renders a **self-contained HTML report**: intake air, rear-minus-front gap and fans for 24 h / 7 / 30 / 90 days,

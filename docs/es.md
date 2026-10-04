@@ -268,6 +268,15 @@ IML  HP2  CRIT  iLO log 2026-07-23 20:29:31 UTC [PCI Bus]: Uncorrectable PCI Exp
 Junto con la línea `@reboot` de cron significa: encienda el recolector por la mañana y, unos
 minutos después, sabrá si ocurrió algo durante la noche.
 
+### Servidores apagados
+
+Con el servidor apagado, el iLO sigue funcionando y responde con los **últimos valores medidos,
+congelados**, marcados como "Enabled" igual que los reales. Por eso `ilo-thermal` consulta además
+`PowerState` en `/redfish/v1/Systems/1/` en cada ejecución. Mientras el servidor no esté `On`, **no se
+guardan lecturas ni se evalúan reglas**; el IML se sigue leyendo. El informe muestra la tarjeta como
+"apagado" con la fecha, y el historial termina con la última lectura real. Si `PowerState` no se puede
+leer, se recoge como antes.
+
 ## 9. El informe HTML
 
 ![Informe con una semana de datos de demostración](report-demo.png)

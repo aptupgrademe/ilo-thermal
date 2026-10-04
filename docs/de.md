@@ -261,6 +261,16 @@ IML  HP2  CRIT  iLO-Protokoll 2026-07-23 20:29:31 UTC [PCI Bus]: Uncorrectable P
 Zusammen mit der `@reboot`-Zeile im cron heißt das: Sammler morgens einschalten, und ein paar Minuten
 später wissen Sie, ob über Nacht etwas passiert ist.
 
+### Ausgeschaltete Server
+
+Auch bei ausgeschaltetem Server läuft das iLO weiter und beantwortet Abfragen – mit den **zuletzt
+gemessenen, eingefrorenen** Werten, die genauso als „Enabled“ markiert sind wie echte. `ilo-thermal`
+fragt deshalb bei jedem Lauf zusätzlich `PowerState` unter `/redfish/v1/Systems/1/` ab. Ist der Server
+nicht `On`, werden **keine Messwerte gespeichert und keine Regeln ausgewertet**; das IML wird weiter
+gelesen. Der Bericht zeigt die Kachel als „ausgeschaltet seit …“, der Verlauf endet mit der letzten echten
+Messung. Ein- und Ausschalten steht einmal im Log. Lässt sich `PowerState` nicht lesen, wird wie bisher
+gesammelt.
+
 ## 9. Der HTML-Bericht
 
 ![Bericht mit einer Woche Demo-Daten](report-demo.png)

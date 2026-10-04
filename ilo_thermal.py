@@ -50,6 +50,8 @@ TEXT = {
         "mail_failed": "sending mail failed: {err}",
         "report_link": "Report",
         "test": "Test message from ilo_thermal.py",
+        "power_off_log": "{host}: server is {state} - no readings are stored until it is on again",
+        "power_on_log": "{host}: server is on again - collecting readings",
     },
     "de": {
         "unreachable": "iLO seit {n} Abfragen nicht erreichbar ({err})",
@@ -70,6 +72,8 @@ TEXT = {
         "mail_failed": "Mailversand fehlgeschlagen: {err}",
         "report_link": "Bericht",
         "test": "Testmeldung von ilo_thermal.py",
+        "power_off_log": "{host}: Server ist {state} - bis zum Einschalten werden keine Messwerte gespeichert",
+        "power_on_log": "{host}: Server wieder eingeschaltet - Messwerte werden wieder gespeichert",
     },
 }
 
@@ -86,7 +90,8 @@ UI = {
            "h_hist": "Alerts", "none": "No alerts so far.", "nodata": "No data yet.",
            "t_time": "Time", "t_host": "Server", "t_level": "Level", "t_msg": "Message",
            "resolved": "✓ Resolved", "iml": "iLO log · ", "warnline": "Warning",
-           "ranges": ["24 h", "7 days", "30 days", "90 days"], "range_label": "Time range", "locale": "en-GB"},
+           "ranges": ["24 h", "7 days", "30 days", "90 days"], "range_label": "Time range", "locale": "en-GB",
+           "off": "switched off", "off_since": "since"},
     "de": {"title": "Rack-Temperaturen", "stand": "Stand", "every": "Werte alle 10 Minuten, solange der Sammler läuft (Lücken = Rechner aus)",
            "crit": "⛔ Kritisch", "warn": "⚠️ Warnung", "allok": "✓ Alles im grünen Bereich", "noalerts": "keine aktiven Meldungen.",
            "front": "vorne", "rear": "hinten", "gap": "Abstand", "fan": "Lüfter", "last": "letzte Messung",
@@ -99,7 +104,8 @@ UI = {
            "h_hist": "Meldungen", "none": "Bisher keine Meldungen.", "nodata": "Noch keine Daten.",
            "t_time": "Zeit", "t_host": "Server", "t_level": "Stufe", "t_msg": "Meldung",
            "resolved": "✓ Entwarnung", "iml": "iLO-Log · ", "warnline": "Warnung",
-           "ranges": ["24 h", "7 Tage", "30 Tage", "90 Tage"], "range_label": "Zeitraum", "locale": "de-DE"},
+           "ranges": ["24 h", "7 Tage", "30 Tage", "90 Tage"], "range_label": "Zeitraum", "locale": "de-DE",
+           "off": "ausgeschaltet", "off_since": "seit"},
 }
 
 
@@ -198,6 +204,25 @@ def collect(conf):
             continue
         con.execute("INSERT OR REPLACE INTO failcount VALUES (?,0)", (host,))
         iml_events += check_iml(conf, con, host, ip, name, now)
+        # A switched-off server keeps its iLO running, and the iLO keeps answering
+        # with the last values it measured - frozen, but marked "Enabled" like live
+        # ones. Only the system's PowerState tells them apart, so nothing is stored
+        # or evaluated while it is not "On". If the state cannot be read, collect as
+        # before rather than losing real readings.
+        try:
+            state = redfish(conf, ip, name, "/redfish/v1/Systems/1/").get("PowerState") or "On"
+        except Exception:
+            state = "On"
+        prev = con.execute("SELECT value FROM meta WHERE key=?", (f"power:{host}",)).fetchone()
+        prev_state = prev[0].split("|")[0] if prev else "On"
+        if state != "On":
+            if prev_state == "On":
+                con.execute("INSERT OR REPLACE INTO meta VALUES (?,?)", (f"power:{host}", f"{state}|{now}"))
+                log(T["power_off_log"].format(host=host, state=state))
+            continue
+        if prev_state != "On":
+            con.execute("INSERT OR REPLACE INTO meta VALUES (?,?)", (f"power:{host}", f"On|{now}"))
+            log(T["power_on_log"].format(host=host))
         rows = []
         for t in th.get("Temperatures", []):
             st = t.get("Status", {})
@@ -388,6 +413,9 @@ def report(conf):
         inl = dict(d["inlet"])
         d["delta"] = [[t, round(v - inl[t], 1)] for t, v in d["rear"] if t in inl]
         d["last_ts"] = con.execute("SELECT MAX(ts) FROM reading WHERE host=?", (h,)).fetchone()[0]
+        pw = con.execute("SELECT value FROM meta WHERE key=?", (f"power:{h}",)).fetchone()
+        st, since = (pw[0].split("|") + [""])[:2] if pw else ("On", "")
+        d["power"] = {"state": st, "since": int(since) if since else None}
         data[h] = d
     alerts = con.execute("SELECT host, level, text, first_ts FROM alert ORDER BY level").fetchall()
     history = con.execute("SELECT ts, host, level, text, kind FROM alert_log ORDER BY ts DESC LIMIT 30").fetchall()
@@ -429,6 +457,7 @@ main{max-width:1100px;margin:0 auto;padding:20px 16px 40px}
 h1{font-size:22px;margin:0 0 2px} h2{font-size:16px;margin:26px 0 4px} .sub{color:var(--ink2);margin:0 0 14px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
 .tile{background:var(--card);border:1px solid var(--grid);border-radius:10px;padding:10px 12px}
+.tile.off{opacity:.65}.tile.off .big{font-size:20px;color:var(--ink2)}
 .tile .h{display:flex;align-items:center;gap:8px;font-weight:600}.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
 .big{font-size:28px;font-variant-numeric:tabular-nums}.big small{font-size:13px;color:var(--ink2);margin-left:6px}
 .kv{color:var(--ink2);font-size:13px;font-variant-numeric:tabular-nums}
@@ -465,6 +494,9 @@ if(D.alerts.length){const lvl=D.alerts.some(a=>a[1]=="CRIT")?"crit":"warn";
 else b.innerHTML=`<div class="banner ok"><b>${U.allok}</b> – ${U.noalerts}</div>`;
 const last=a=>a.length?a[a.length-1][1]:"–";
 document.getElementById("tiles").innerHTML=D.hosts.map((h,i)=>{const d=D.data[h];
+ if(d.power&&d.power.state!="On")return `<div class="tile off"><div class="h"><span class="sw" style="background:${COL[i]}"></span>${esc(h)}</div>
+ <div class="big">${U.off}</div><div class="kv">${d.power.since?U.off_since+" "+fmtT(d.power.since):""}</div>
+ <div class="kv">${U.last} ${d.last_ts?fmtT(d.last_ts):"–"}</div></div>`;
  return `<div class="tile"><div class="h"><span class="sw" style="background:${COL[i]}"></span>${esc(h)}</div>
  <div class="big">${last(d.inlet)} °C<small>${U.front}</small></div>
  <div class="kv">${U.rear} ${last(d.rear)} °C · ${U.gap} ${last(d.delta)} °C · ${U.fan} ${last(d.fan)} %</div>

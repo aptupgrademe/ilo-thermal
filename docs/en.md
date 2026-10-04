@@ -258,6 +258,15 @@ IML  HP2  CRIT  iLO log 2026-07-23 20:29:31 UTC [PCI Bus]: Uncorrectable PCI Exp
 Together with the `@reboot` cron line this means: switch the collector on in the morning, and a
 few minutes later you know whether anything happened overnight.
 
+### Servers that are switched off
+
+A switched-off server keeps its iLO running, and the iLO keeps answering – with the **last measured,
+frozen** values, marked "Enabled" just like live ones. So `ilo-thermal` also reads `PowerState` from
+`/redfish/v1/Systems/1/` on every run. While the server is not `On`, **no readings are stored and no
+rules are evaluated**; the IML is still read. The report shows the tile as "switched off since …", and
+the history ends with the last real reading. Power changes are logged once. If `PowerState` cannot be
+read, it collects as before.
+
 ## 9. The HTML report
 
 ![Report with one week of demo data](report-demo.png)

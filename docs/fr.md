@@ -271,6 +271,15 @@ IML  HP2  CRIT  iLO log 2026-07-23 20:29:31 UTC [PCI Bus]: Uncorrectable PCI Exp
 Avec la ligne cron `@reboot`, cela signifie : allumez le collecteur le matin, et quelques minutes
 plus tard vous savez s'il s'est passé quelque chose pendant la nuit.
 
+### Serveurs éteints
+
+Un serveur éteint garde son iLO actif, et l'iLO continue de répondre – avec les **dernières valeurs
+mesurées, figées**, marquées « Enabled » comme les vraies. `ilo-thermal` lit donc aussi `PowerState`
+sous `/redfish/v1/Systems/1/` à chaque passage. Tant que le serveur n'est pas `On`, **aucune mesure
+n'est enregistrée et aucune règle n'est évaluée** ; l'IML continue d'être lu. Le rapport affiche la
+tuile « éteint » avec la date, et l'historique s'arrête à la dernière vraie mesure. Si `PowerState` est
+illisible, la collecte continue comme avant.
+
 ## 9. Le rapport HTML
 
 ![Rapport avec une semaine de données de démonstration](report-demo.png)
