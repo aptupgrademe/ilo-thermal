@@ -132,6 +132,18 @@ el recolector, p. ej. `~/homelab-root-ca.crt`. Si sus iLO siguen con el certific
 fábrica: sustitúyalo (recomendado) o exporte el certificado de cada iLO y use una instancia del
 recolector por certificado.
 
+
+**Certificados autofirmados (de fábrica):** en lugar de una CA, fije el certificado de cada iLO por su
+huella SHA-256 en una sección `[fingerprints]` (clave: IP o nombre DNS de `[hosts]`). Para un iLO fijado se
+omiten la comprobación de CA y de nombre; cualquier otro certificado se rechaza.
+
+```ini
+[fingerprints]
+192.0.2.49 = 3F:A1:…:9C      # openssl s_client -connect 192.0.2.49:443 </dev/null | openssl x509 -noout -fingerprint -sha256
+```
+
+Si se renueva o restablece un certificado iLO, actualice la huella; de lo contrario el iLO aparecerá como inaccesible.
+
 ### 5.4 Configuración
 
 ```sh

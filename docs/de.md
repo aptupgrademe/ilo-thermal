@@ -129,6 +129,18 @@ Sie es auf den Sammler, z. B. `~/homelab-root-ca.crt`. Nutzen Ihre iLOs noch das
 selbstsignierte Zertifikat: ersetzen (empfohlen) oder das Zertifikat jedes iLO exportieren und je
 Zertifikat eine eigene Sammler-Instanz betreiben.
 
+
+**Selbstsignierte (Werks-)Zertifikate:** Statt einer CA lässt sich das Zertifikat jedes iLO über seinen
+SHA-256-Fingerabdruck festnageln, in einem Abschnitt `[fingerprints]` (Schlüssel: IP oder DNS-Name aus
+`[hosts]`). Für ein so gepinntes iLO entfallen CA- und Namensprüfung; jedes andere Zertifikat wird abgelehnt.
+
+```ini
+[fingerprints]
+192.0.2.49 = 3F:A1:…:9C      # openssl s_client -connect 192.0.2.49:443 </dev/null | openssl x509 -noout -fingerprint -sha256
+```
+
+Wird ein iLO-Zertifikat erneuert oder zurückgesetzt, den Fingerabdruck anpassen, sonst gilt das iLO als nicht erreichbar.
+
 ### 5.4 Konfiguration
 
 ```sh

@@ -13,7 +13,7 @@ switched off, and renders a self-contained HTML report with charts.
 
 Standard library only. Config: ilo_thermal.conf next to this script, chmod 600.
 """
-import base64, configparser, datetime as dt, http.client, json, os, re
+import base64, configparser, datetime as dt, hashlib, http.client, json, os, re
 import smtplib, socket, sqlite3, ssl, statistics, sys, time
 from email.message import EmailMessage
 
@@ -135,6 +135,8 @@ def tr(conf):
 # Redfish: connect by IP but verify the certificate against the configured CA
 # and the DNS name on the certificate. Useful when the collector does not use
 # the DNS server that knows the iLO names (e.g. an AD-internal zone).
+# Alternatively pin the certificate by its SHA-256 fingerprint ([fingerprints]),
+# e.g. for the iLO's factory self-signed certificate.
 # ---------------------------------------------------------------------------
 class _Conn(http.client.HTTPSConnection):
     def __init__(self, ip, name, ctx):
@@ -146,11 +148,36 @@ class _Conn(http.client.HTTPSConnection):
         self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
 
 
+def _pin(conf, ip, name):
+    """SHA-256 fingerprint from [fingerprints] (key: IP or DNS name), or None."""
+    if not conf.has_section("fingerprints"):
+        return None
+    for key in (ip, name):
+        v = conf["fingerprints"].get(key, "").strip()
+        if v:
+            return v.replace(":", "").lower()
+    return None
+
+
 def redfish(conf, ip, name, path):
-    ca = conf["ilo"].get("ca_file", "").strip()
-    ctx = ssl.create_default_context(cafile=os.path.expanduser(ca) if ca else None)
+    pin = _pin(conf, ip, name)
+    if pin:
+        # Self-signed iLO certificate (factory default): no CA to verify against,
+        # so compare the certificate's SHA-256 fingerprint instead.
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    else:
+        ca = conf["ilo"].get("ca_file", "").strip()
+        ctx = ssl.create_default_context(cafile=os.path.expanduser(ca) if ca else None)
     auth = base64.b64encode(f"{conf['ilo']['user']}:{conf['ilo']['password']}".encode()).decode()
     c = _Conn(ip, name, ctx)
+    if pin:
+        c.connect()
+        got = hashlib.sha256(c.sock.getpeercert(binary_form=True)).hexdigest()
+        if got != pin:
+            c.close()
+            raise RuntimeError(f"certificate fingerprint mismatch for {name or ip}")
     c.request("GET", path, headers={"Authorization": "Basic " + auth})
     r = c.getresponse()
     body = r.read()

@@ -21,6 +21,12 @@ HP1 = 192.0.2.29, hp1-ilo.example.home.arpa
 HP2 = 192.0.2.39, hp2-ilo.example.home.arpa
 HP3 = 192.0.2.49, hp3-ilo.example.home.arpa
 
+# Optional: pin self-signed (factory) iLO certificates by SHA-256 fingerprint instead of ca_file.
+# Key = IP or DNS name from [hosts]. Get it with:
+#   openssl s_client -connect IP:443 </dev/null | openssl x509 -noout -fingerprint -sha256
+#[fingerprints]
+#192.0.2.49 = 3F:A1:...:9C
+
 [thresholds]
 inlet_warn = 30          # °C intake air: warning
 inlet_crit = 35          # °C intake air: critical (HPE rates these servers for 35 °C ambient)

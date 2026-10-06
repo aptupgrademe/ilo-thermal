@@ -126,6 +126,18 @@ the collector, e.g. `~/homelab-root-ca.crt`. If your iLOs still use the factory 
 certificate: replace it (recommended) or export each iLO's certificate and use one collector
 instance per certificate.
 
+
+**Self-signed (factory) certificates:** instead of a CA, pin each iLO's certificate by its SHA-256
+fingerprint in a `[fingerprints]` section (key: IP or DNS name from `[hosts]`). For a pinned iLO the
+CA and the name check are skipped; any other certificate is rejected.
+
+```ini
+[fingerprints]
+192.0.2.49 = 3F:A1:…:9C      # openssl s_client -connect 192.0.2.49:443 </dev/null | openssl x509 -noout -fingerprint -sha256
+```
+
+After an iLO certificate is renewed or reset, update the fingerprint, otherwise that iLO shows as unreachable.
+
 ### 5.4 Configuration
 
 ```sh

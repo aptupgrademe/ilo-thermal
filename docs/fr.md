@@ -135,6 +135,18 @@ sur le collecteur, par ex. `~/homelab-root-ca.crt`. Si vos iLO utilisent encore 
 autosigné d'usine : remplacez-le (recommandé) ou exportez le certificat de chaque iLO et utilisez
 une instance du collecteur par certificat.
 
+
+**Certificats auto-signés (d'usine) :** au lieu d'une CA, épinglez le certificat de chaque iLO par son
+empreinte SHA-256 dans une section `[fingerprints]` (clé : IP ou nom DNS de `[hosts]`). Pour un iLO épinglé,
+la vérification CA et du nom est ignorée ; tout autre certificat est refusé.
+
+```ini
+[fingerprints]
+192.0.2.49 = 3F:A1:…:9C      # openssl s_client -connect 192.0.2.49:443 </dev/null | openssl x509 -noout -fingerprint -sha256
+```
+
+Après renouvellement ou réinitialisation d'un certificat iLO, mettez l'empreinte à jour, sinon l'iLO apparaît injoignable.
+
 ### 5.4 Configuration
 
 ```sh
