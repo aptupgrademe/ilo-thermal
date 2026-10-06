@@ -1,5 +1,6 @@
 # credentials and local state - never commit
 ilo_thermal.conf
+ilo_thermal.conf.bak*
 *.db
 *.db.bak*
 *.log
